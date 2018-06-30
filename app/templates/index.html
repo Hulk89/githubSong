@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Github Song</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://d3js.org/d3.v3.min.js"></script>
+  <script src="static/js/Tone.min.js"></script>
+</head>
+<body>
+  <h1 style="text-align: center;">Github Song</h1>
+  <div style="display: flex; justify-content: center;">
+    
+    <div class="plot" style="width: 848px; height: 112px; background-color: white;">
+    </div>
+  </div>
+  <div style="display: flex; justify-content: center;">
+    <span id="bpm">bpm: 120</span><input type="range" min="50" max="200" value="120" onchange="changeBpm(this.value)"/></span>
+  </div>
+  <div style="display: flex; justify-content: center;">
+    <button id="bt" onclick="startStop()">start</button>
+    
+  </div>
+
+  <script>
+
+    //d3.js
+    var width = 848
+    var height = 112
+    var size = 16
+    var num_cols = 53
+    var num_day = 7
+    var color_off = 'rgb(235, 237, 240)'
+    var color_on = 'rgb(126, 201, 128)'
+
+    var cursor = 0
+
+    var svg = d3.select(".plot")
+                .append("svg")
+                  .attr("width", width)
+                  .attr("height", height)
+
+    var data_g = svg.append("g")
+                .attr({
+                  id: 'data',
+                  x:0,
+                  y:0,
+                })
+
+    var cursor_g = svg.append("g")
+                .attr({
+                  id: 'cursor',
+                  x:0,
+                  y:0,
+                })
+
+
+    //Tone.js
+    var polySynth = new Tone.PolySynth(16, Tone.Synth).toMaster();
+    var synth = new Tone.Synth().toMaster();
+    var freqs = ['C5', 'D5', 'E5', 'G5', 'A5', 'C6', 'D6']
+    freqs = freqs.reverse()
+    
+    var part = null
+    Tone.Transport.bpm.value = 120
+
+    function changeBpm(value){
+      Tone.Transport.bpm.value = value
+      document.getElementById("bpm").innerHTML = "bpm: " + value
+    }
+
+    function initializePlot(data) {
+      data_g.selectAll('rect')
+          .data(data)
+            .enter()
+            .append("rect")
+              .attr({
+                x:      function(d, i) {return size * (i % num_cols) + 1;},
+                y:      function(d, i) {return size * parseInt(i/num_cols) + 1; },
+                width:  size-2,
+                height: size-2,
+                fill:   function(d, i) {
+                    if (d == 1) {return color_on}
+                    else { return color_off}
+                }
+              })
+    }
+
+    function initializeCursor() {
+      cursor_g.append('rect')
+        .attr({      
+          x:0,
+          y:0,
+          width:size,
+          height:height,
+          fill: color_on,
+          opacity:0.25
+        })
+    }
+
+    function nextCursor() {
+      cursor_g.selectAll('rect')
+        .data([cursor])
+          .attr({      
+            x:function(d){return d * size},
+          })
+      cursor = (cursor + 1) % num_cols
+    }
+
+    function makeSong() {
+
+      // 여기서 data를 다시 완성시킴..
+      let newArr = []
+      for (var t=0 ; t < num_cols ; t++) {
+        const new_time = "0:0:" + 2*t
+        let song_arr = []
+        for (var i=0 ; i < num_day ; i++) {
+          const cand = data[t + num_cols*i]
+          if (cand == 1) {
+            song_arr.push(freqs[i])
+          }
+        }
+        newArr.push([new_time, song_arr])
+      }
+      part = new Tone.Part(function(time, note) {
+        polySynth.triggerAttackRelease(note, '8n', time)
+        
+        Tone.Draw.schedule(function(){
+          nextCursor()  
+        }, time)
+      }, newArr)
+      
+      part.start(0)
+      part.loop = true
+      part.loopEnd = "0:0:" + 53*2
+    }
+
+    function startStop() {
+      var button = document.getElementById("bt")
+      if (Tone.Transport.state == "stopped") {
+        button.innerHTML = "stop"
+        Tone.Transport.start()
+        
+      }
+      else {
+        button.innerHTML = "start"
+        Tone.Transport.stop()
+        cursor = 0
+      }
+    }
+    
+    const data = {{ github_data }}
+    makeSong()
+    initializePlot(data)
+    initializeCursor()
+    
+  
+  </script>
+</body>
+</html>

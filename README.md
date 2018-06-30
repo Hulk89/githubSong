@@ -8,5 +8,5 @@ I use pentatonic scale for making song.
 
 # Demo
 
-![Song for my commit history](http://hulk89.synology.me:32962/hulk89)
+[Song for my commit history](http://hulk89.synology.me:32962/hulk89)
 

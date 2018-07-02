@@ -7,12 +7,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <script src="https://d3js.org/d3.v3.min.js"></script>
   <script src="static/js/Tone.min.js"></script>
+  <script src="static/js/StartAudioContext.js"></script>
 </head>
 <body>
   <h1 style="text-align: center;">Github Song</h1>
   <div style="display: flex; justify-content: center;">
     
-    <div class="plot" style="width: 848px; height: 112px; background-color: white;">
+    <div class="plot" style="width: 424px; height: 56px; background-color: white;">
     </div>
   </div>
   <div style="display: flex; justify-content: center;">
@@ -24,11 +25,14 @@
   </div>
 
   <script>
-
+    //mobile start
+    if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
+        StartAudioContext(Tone.context, '#bt')
+    }
     //d3.js
-    var width = 848
-    var height = 112
-    var size = 16
+    var width = 424
+    var height = 56
+    var size = 8
     var num_cols = 53
     var num_day = 7
     var color_off = 'rgb(235, 237, 240)'

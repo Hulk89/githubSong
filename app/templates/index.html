@@ -13,7 +13,7 @@
   <h1 style="text-align: center;">Github Song</h1>
   <div style="display: flex; justify-content: center;">
     
-    <div class="plot" style="width: 424px; height: 56px; background-color: white;">
+    <div class="plot" style="width: 100%; height: 56px; background-color: white;">
     </div>
   </div>
   <div style="display: flex; justify-content: center;">
@@ -30,11 +30,12 @@
         StartAudioContext(Tone.context, '#bt')
     }
     //d3.js
-    var width = 424
-    var height = 56
-    var size = 8
+    var screen_width = screen.width
+    var width = Math.min(424, screen_width)
     var num_cols = 53
     var num_day = 7
+    var size = parseInt(width/num_cols)
+    var height = num_day * size
     var color_off = 'rgb(235, 237, 240)'
     var color_on = 'rgb(126, 201, 128)'
 
@@ -42,8 +43,14 @@
 
     var svg = d3.select(".plot")
                 .append("svg")
-                  .attr("width", width)
-                  .attr("height", height)
+                  .attr({
+                      "width": width,
+                      "height": height
+                  })
+                  .style({
+                      "display": "block",
+                      "margin": "auto"
+                  })
 
     var data_g = svg.append("g")
                 .attr({
